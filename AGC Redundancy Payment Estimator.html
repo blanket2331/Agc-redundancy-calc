@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redundancy Payment Estimator — AGC Chemicals Europe</title>
+<style>
+  :root{
+    --ink:#0F2438; --ink-soft:#1B3A5C; --paper:#F6F5F1; --paper-raised:#FFFFFF;
+    --line:#D9D5C9; --text:#22282E; --text-soft:#5B6470;
+    --amber:#A8792E; --amber-bg:#FBF3E4; --green:#3F7A5C; --green-bg:#EAF3EE;
+    --rust:#9C4A3C; --rust-bg:#FBECE9; --teal:#2C6E75; --teal-bg:#E7F1F1;
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Menlo', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper); color:var(--text); font-family:var(--sans); line-height:1.45; padding:0 0 60px 0;}
+  .masthead{background:var(--ink); color:#EDEFF2; padding:28px 32px 24px; border-bottom:4px solid var(--amber);}
+  .masthead-inner{max-width:1180px; margin:0 auto;}
+  .masthead .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#9FB3C8; margin-bottom:6px;}
+  .masthead h1{font-family:var(--serif); font-weight:400; font-size:28px; margin:0 0 6px 0; letter-spacing:.01em;}
+  .masthead p{margin:0; font-size:14px; color:#B9C4D0; max-width:780px;}
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 32px 0; display:grid; grid-template-columns:380px 1fr; gap:24px; align-items:start;}
+  @media (max-width:900px){ .wrap{grid-template-columns:1fr; padding:20px 16px 0;} .masthead{padding:22px 16px 20px;} }
+
+  .panel{background:var(--paper-raised); border:1px solid var(--line); border-radius:3px;}
+  .form-panel{padding:22px 22px 26px; position:sticky; top:16px;}
+  @media (max-width:900px){ .form-panel{position:static;} }
+  .panel h2{font-family:var(--serif); font-size:15px; text-transform:uppercase; letter-spacing:.08em; font-weight:400; color:var(--ink-soft); margin:0 0 16px 0; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .subhead{font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--amber); font-weight:700; margin:20px 0 12px 0;}
+  .field{margin-bottom:15px;}
+  .field label{display:block; font-size:12.5px; color:var(--text-soft); margin-bottom:5px; font-weight:600;}
+  .field .hint{font-size:11px; color:#8A8F95; margin-top:4px; font-weight:400;}
+  input[type=date], input[type=number], select{width:100%; padding:9px 10px; border:1px solid #C7C2B4; border-radius:3px; font-size:14px; font-family:var(--sans); background:#FFFEFC; color:var(--text);}
+  input:focus, select:focus{outline:2px solid var(--ink-soft); outline-offset:1px; border-color:var(--ink-soft);}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .custom-notice{margin-top:8px; display:none;} .custom-notice.show{display:block;}
+  .divider{height:1px; background:var(--line); margin:18px 0;}
+
+  .results{display:flex; flex-direction:column; gap:18px;}
+  .banner{padding:12px 16px; border-radius:3px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px;}
+  .banner.warn{background:var(--rust-bg); color:var(--rust); border:1px solid #f0d7d2;}
+
+  .card{background:var(--paper-raised); border:1px solid var(--line); border-radius:3px; overflow:hidden;}
+  .card-head{padding:18px 24px 14px; border-bottom:1px dashed var(--line);}
+  .card-head .label{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-soft);}
+  .card-head .who{font-family:var(--serif); font-size:18px; margin-top:4px; color:var(--ink);}
+  .line-block{padding:16px 24px;}
+  .line-block h3{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-soft); margin:0 0 10px 0; font-weight:700;}
+  .line{display:flex; align-items:baseline; padding:5px 0; font-size:14px;}
+  .line .lbl{color:var(--text);}
+  .line .sub{display:block; font-size:11.5px; color:var(--text-soft); margin-top:1px;}
+  .leader{flex:1; border-bottom:1px dotted #C7C2B4; margin:0 8px; transform:translateY(-3px);}
+  .line .val{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:14px; white-space:nowrap;}
+  .line.sum{border-top:1px solid var(--line); margin-top:4px; padding-top:9px;}
+  .line.sum .val, .line.sum .lbl{font-weight:700;}
+  .line.faint{color:var(--text-soft);} .line.faint .val{color:var(--text-soft);}
+  .line.deduct .val{color:var(--rust);}
+  .line.winner{background:var(--green-bg); margin:0 -24px; padding:8px 24px; border-radius:2px;}
+  .line.winner .val, .line.winner .lbl{color:var(--green); font-weight:700;}
+
+  .netbar{background:var(--teal); color:#fff; padding:16px 24px; display:flex; align-items:baseline; justify-content:space-between; gap:12px;}
+  .netbar .lbl{font-size:12.5px; letter-spacing:.03em;}
+  .netbar .amt{font-family:var(--serif); font-size:26px; color:#EAF6F5;}
+
+  .stub{border-top:2px dashed var(--line); background:var(--ink); color:#fff; padding:22px 24px; position:relative;}
+  .stub:before{content:""; position:absolute; top:-6px; left:0; right:0; height:12px; background:radial-gradient(circle, var(--paper) 4px, transparent 4.5px) repeat-x; background-size:16px 12px; background-position:0 0;}
+  .stub .eyebrow{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:#9FB3C8; margin-bottom:6px;}
+  .stub .total{font-family:var(--serif); font-size:38px; color:#F7E6C4; line-height:1.1;}
+  .stub .total small{font-size:20px; font-weight:400; color:#DCC48F;}
+  .stub .caption{font-size:12.5px; color:#B9C4D0; margin-top:8px;}
+
+  .tax-block{padding:18px 24px 4px; border-top:1px solid var(--line); background:#FBFAF7;}
+  .tax-block.hidden{display:none;}
+  .crosscheck{margin:14px 24px 20px; padding:12px 14px; background:var(--teal-bg); border:1px solid #cfe4e4; border-radius:3px; font-size:12.5px; color:#2a5c60;}
+  .crosscheck strong{color:#1d4448;}
+  .crosscheck .big{font-family:var(--mono); font-weight:700;}
+
+  .assumptions{background:var(--paper-raised); border:1px solid var(--line); border-radius:3px; padding:18px 24px; font-size:12.5px; color:var(--text-soft);}
+  .assumptions h3{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-soft); margin:0 0 10px 0;}
+  .assumptions ul{margin:0; padding-left:18px;}
+  .assumptions li{margin-bottom:6px;} .assumptions strong{color:var(--text);}
+  .footer-note{max-width:1180px; margin:24px auto 0; padding:0 32px; font-size:11.5px; color:#9AA0A6;}
+  @media (max-width:900px){ .footer-note{padding:0 16px;} }
+  @media (max-width:520px){
+    .line{flex-wrap:wrap;} .line .lbl{width:100%; margin-bottom:2px;} .line .leader{display:none;}
+    .line.winner{margin:0 -16px; padding:8px 16px;} .stub .total{font-size:30px;}
+    .netbar{flex-wrap:wrap;} .netbar .amt{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="eyebrow">AGC Chemicals Europe · Hillhouse Site</div>
+    <h1>Redundancy Payment Estimator</h1>
+    <p>Work out your monthly take-home pay and an illustrative redundancy package — the Collectively Agreed Scheme, the proposed Alternative Scheme, and the Additional Payment — based on the Collective Agreement (revised August 2021) and the redundancy briefing.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ FORM ============ -->
+  <div class="panel form-panel">
+    <h2>Your details</h2>
+
+    <div class="field">
+      <label for="dob">Date of birth</label>
+      <input type="date" id="dob">
+    </div>
+    <div class="field">
+      <label for="startDate">Employment start date</label>
+      <input type="date" id="startDate">
+      <div class="hint">Determines whether the ICI (pre-2005) or Fluon (post-2005) scheme applies.</div>
+    </div>
+    <div class="field">
+      <label for="leavingDate">Assumed redundancy / leaving date</label>
+      <input type="date" id="leavingDate" value="2026-12-31">
+      <div class="hint">Defaults to 31 December 2026. Also sets how much salary you've earned this tax year for the tax estimate.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label for="salary">Basic annual salary (£)</label>
+      <input type="number" id="salary" min="0" step="100" placeholder="e.g. 45000">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="wcp">WCP — annual (£)</label>
+        <input type="number" id="wcp" min="0" step="10" value="0">
+      </div>
+      <div class="field">
+        <label for="sda">SDA — annual (£)</label>
+        <input type="number" id="sda" min="0" step="10" value="0">
+      </div>
+    </div>
+    <div class="hint" style="margin-top:-6px; margin-bottom:15px;">Basic + Working Conditions Payment + Shift Disturbance Allowance = "qualifying pay". Your monthly pay and PILON are both based on this. Leave WCP/SDA at 0 if they don't apply.</div>
+
+    <div class="field">
+      <label for="notice">Contractual notice period</label>
+      <select id="notice">
+        <option value="1">1 month</option>
+        <option value="3" selected>3 months</option>
+        <option value="6">6 months</option>
+        <option value="custom">Other (enter months)</option>
+      </select>
+      <div class="field custom-notice" id="customNoticeWrap">
+        <input type="number" id="customNoticeMonths" min="0" step="0.1" placeholder="Number of months">
+      </div>
+    </div>
+
+    <div class="subhead">Deductions (for take-home pay)</div>
+
+    <div class="field">
+      <label for="pensionPct">Pension contribution (% of pay)</label>
+      <input type="number" id="pensionPct" min="0" max="100" step="0.5" value="0">
+    </div>
+    <div class="field">
+      <label for="pensionType">Pension type</label>
+      <select id="pensionType">
+        <option value="salsac">Salary sacrifice (reduces tax &amp; NI)</option>
+        <option value="netpay">Net pay / auto-enrolment (reduces tax only)</option>
+      </select>
+      <div class="hint">If unsure, salary sacrifice is common at large employers. Check your payslip.</div>
+    </div>
+    <div class="field">
+      <label for="studentLoan">Student loan plan</label>
+      <select id="studentLoan">
+        <option value="none" selected>None</option>
+        <option value="plan1">Plan 1 (before Sep 2012, or NI/Scotland pre-2021)</option>
+        <option value="plan2">Plan 2 (Sep 2012 – Jul 2023, Eng/Wales)</option>
+        <option value="plan4">Plan 4 (Scotland)</option>
+        <option value="plan5">Plan 5 (from Sep 2023, England)</option>
+        <option value="postgrad">Postgraduate loan</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div class="results">
+
+    <div id="banner" class="banner warn" style="display:none;"></div>
+
+    <!-- MONTHLY TAKE-HOME -->
+    <div class="card" id="monthlyCard" style="display:none;">
+      <div class="card-head">
+        <div class="label">Your normal pay, per month</div>
+        <div class="who">Monthly take-home breakdown</div>
+      </div>
+      <div class="line-block">
+        <div class="line"><span class="lbl">Gross monthly pay (qualifying pay ÷ 12)</span><span class="leader"></span><span class="val" id="m-gross">—</span></div>
+        <div class="line deduct" id="m-pension-row"><span class="lbl">Pension contribution</span><span class="leader"></span><span class="val" id="m-pension">—</span></div>
+        <div class="line deduct"><span class="lbl">Income Tax</span><span class="leader"></span><span class="val" id="m-tax">—</span></div>
+        <div class="line deduct"><span class="lbl">Employee National Insurance</span><span class="leader"></span><span class="val" id="m-ni">—</span></div>
+        <div class="line deduct" id="m-sl-row"><span class="lbl">Student loan</span><span class="leader"></span><span class="val" id="m-sl">—</span></div>
+      </div>
+      <div class="netbar">
+        <span class="lbl">Estimated monthly take-home</span>
+        <span class="amt" id="m-net">—</span>
+      </div>
+      <div class="line-block" style="padding-top:12px;">
+        <div class="line faint"><span class="lbl">Annual take-home (× 12)</span><span class="leader"></span><span class="val" id="m-net-annual">—</span></div>
+      </div>
+    </div>
+
+    <!-- REDUNDANCY STATEMENT -->
+    <div class="card">
+      <div class="card-head">
+        <div class="label">Illustrative redundancy statement</div>
+        <div class="who" id="statementSub">Fill in your details to see your estimate</div>
+      </div>
+
+      <div class="line-block" id="basicsBlock" style="display:none;">
+        <h3>Basics</h3>
+        <div class="line"><span class="lbl">Qualifying pay (basic + WCP + SDA)</span><span class="leader"></span><span class="val" id="v-qp">—</span></div>
+        <div class="line"><span class="lbl">Age at leaving date</span><span class="leader"></span><span class="val" id="v-age">—</span></div>
+        <div class="line"><span class="lbl">Length of service at leaving date</span><span class="leader"></span><span class="val" id="v-service">—</span></div>
+        <div class="line"><span class="lbl">Applicable scheme</span><span class="leader"></span><span class="val" id="v-schemeFamily">—</span></div>
+      </div>
+
+      <div class="line-block" id="under2Block" style="display:none;">
+        <h3>Under 2 years' service</h3>
+        <div class="line"><span class="lbl">Payment in lieu of notice (PILON)</span><span class="leader"></span><span class="val" id="v-u2-pilon">—</span></div>
+        <div class="line"><span class="lbl">Additional Payment (4 weeks, conditional)</span><span class="leader"></span><span class="val" id="v-u2-add">—</span></div>
+        <div class="line sum"><span class="lbl">Total (gross)</span><span class="leader"></span><span class="val" id="v-u2-total">—</span></div>
+      </div>
+
+      <div class="line-block" id="schemeBlock" style="display:none;">
+        <h3>Collectively Agreed Scheme vs Alternative Scheme</h3>
+        <div class="line" id="row-collective">
+          <span class="lbl">Collectively Agreed Scheme<span class="sub" id="sub-collective"></span></span>
+          <span class="leader"></span><span class="val" id="v-collective">—</span>
+        </div>
+        <div class="line" id="row-alternative">
+          <span class="lbl">Alternative Scheme<span class="sub">2 × statutory redundancy pay + PILON</span></span>
+          <span class="leader"></span><span class="val" id="v-alternative">—</span>
+        </div>
+        <div class="line winner" id="row-winner">
+          <span class="lbl">Payable amount (higher of the two)</span>
+          <span class="leader"></span><span class="val" id="v-winner">—</span>
+        </div>
+      </div>
+
+      <div class="line-block" id="componentsBlock" style="display:none;">
+        <h3>Component reference</h3>
+        <div class="line faint"><span class="lbl">Statutory redundancy pay (2026/27 cap £751/wk)</span><span class="leader"></span><span class="val" id="v-srp">—</span></div>
+        <div class="line faint"><span class="lbl">Payment in lieu of notice (PILON)</span><span class="leader"></span><span class="val" id="v-pilon">—</span></div>
+        <div class="line"><span class="lbl">Additional Payment (4 weeks' qualifying pay, conditional)</span><span class="leader"></span><span class="val" id="v-additional">—</span></div>
+      </div>
+
+      <div class="stub" id="stub" style="display:none;">
+        <div class="eyebrow">Estimated total redundancy payment</div>
+        <div class="total"><small>£</small><span id="v-total">0</span></div>
+        <div class="caption" id="stub-caption">Before tax and National Insurance</div>
+      </div>
+
+      <div class="tax-block" id="taxBlock" style="display:none;">
+        <h3 style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-soft); margin:0 0 12px 0;">Estimated tax on the package (2026/27)</h3>
+        <div class="line faint"><span class="lbl">Tax-free redundancy element (up to £30,000)</span><span class="leader"></span><span class="val" id="v-taxfree">—</span></div>
+        <div class="line faint"><span class="lbl">Taxable as earnings (PILON + Additional + any excess)</span><span class="leader"></span><span class="val" id="v-taxable">—</span></div>
+        <div class="divider" style="margin:10px 0;"></div>
+        <div class="line deduct"><span class="lbl">Estimated Income Tax</span><span class="leader"></span><span class="val" id="v-tax-it">—</span></div>
+        <div class="line deduct"><span class="lbl">Estimated employee National Insurance</span><span class="leader"></span><span class="val" id="v-tax-ni">—</span></div>
+        <div class="line deduct" id="v-tax-sl-row"><span class="lbl">Estimated student loan</span><span class="leader"></span><span class="val" id="v-tax-sl">—</span></div>
+      </div>
+      <div class="netbar" id="netPackageBar" style="display:none;">
+        <span class="lbl">Estimated net redundancy payment</span>
+        <span class="amt" id="v-net-package">—</span>
+      </div>
+
+      <div class="crosscheck" id="crosscheck" style="display:none;">
+        <strong>Your colleague's check:</strong> PILON is taxed like salary, so a quick sanity check is
+        <span id="cc-months"></span> months × your monthly take-home (<span class="big" id="cc-monthly"></span>)
+        = <span class="big" id="cc-result"></span>.
+        The modelled net PILON here is <span class="big" id="cc-modelled"></span>.
+        <span id="cc-note"></span>
+      </div>
+    </div>
+
+    <div class="assumptions">
+      <h3>Assumptions &amp; things to check</h3>
+      <ul>
+        <li>Scheme percentages come directly from <strong>Schedule III / Schedule IV</strong> of the ICI scheme and the <strong>Fluon 2005 Appendix 4</strong> table, exactly as printed in the signed Collective Agreement (revised August 2021).</li>
+        <li>Pre-2005 starters are shown the better of the ICI and Fluon terms, reflecting the company's proposal. Statutory redundancy pay uses the <strong>2026/27 £751</strong> weekly cap and the 0.5 / 1.0 / 1.5 age bands, capped at 20 years.</li>
+        <li><strong>Tax treatment:</strong> the genuine redundancy element is tax-free up to <strong>£30,000</strong>; anything above that is taxed but has no employee NI. PILON and the Additional Payment are taxed as normal earnings (Income Tax + NI + student loan). This matches the briefing.</li>
+        <li><strong>Why PILON ≈ monthly take-home × notice months:</strong> because PILON is taxed like salary. It isn't exact — a lump paid in one month gets most of its NI at 2% (which raises take-home), while if the lump tips you into the 40% band some is taxed more (which lowers it). Payroll may also apply emergency tax on the lump and refund it later.</li>
+        <li>The package tax estimate assumes you've earned roughly <strong id="a-months">—</strong> of salary in the 2026/27 tax year before leaving (from your leaving date), so the personal allowance and 20% band are partly used up already.</li>
+        <li>Take-home figures assume this is your only income, a standard tax code, and rest-of-UK rates (not Scottish). They ignore payroll timing and benefits in kind. Confirm exact figures with payroll or HR, and see <strong>gov.uk/calculate-your-redundancy-pay</strong>.</li>
+        <li>The <strong>Additional Payment</strong> is conditional on satisfactory performance, no material absence, and signing a settlement agreement — not guaranteed. This tool is illustrative and does not override the Collective Agreement or any settlement agreement.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="footer-note">Built from: Redundancy payments briefing (20/08/26), Appendix 3 Schedule III, Fluon 2005 Appendix 4, and the signed Collective Agreement (revised August 2021). 2026/27 tax, NI and student-loan thresholds. Personal, illustrative use only.</div>
+
+<script>
+(function(){
+  // ---------------- Scheme data tables (validated against briefing worked examples) ----------------
+  const SCHEDULE_III = {
+    upto35:[58.33,58.98,59.63,60.27,60.92,61.57,62.22,62.87,63.51,64.16,64.81,65.46],
+    36:[66.11,66.76,67.41,68.05,68.70,69.35,70.00,70.65,71.29,71.94,72.59,73.24],
+    37:[73.89,74.54,75.19,75.83,76.48,77.13,77.78,78.42,79.07,79.72,80.37,81.02],
+    38:[81.67,82.32,82.97,83.61,84.26,84.91,85.56,86.21,86.85,87.50,88.15,88.80],
+    39:[89.44,90.09,90.74,91.38,92.03,92.68,93.33,93.98,94.62,95.27,95.92,96.57],
+    40:[97.22,97.87,98.52,99.16,99.81,100.65,101.11,101.76,102.40,103.05,103.70,104.35],
+    41:[105.00,105.65,106.30,106.94,107.59,108.24,108.89,109.54,110.18,110.83,111.48,112.13],
+    42:[112.78,113.43,114.08,114.72,115.37,116.02,116.67,117.32,117.96,118.61,119.26,119.91],
+    43:[120.55,121.20,121.85,122.49,123.14,123.79,124.44,125.09,125.73,126.38,127.03,127.68],
+    44:[128.33,128.98,129.63,130.28,130.92,131.57,132.22,132.87,133.51,134.16,134.81,135.46],
+    45:[136.11,136.76,137.41,138.05,138.70,139.35,140.00,140.65,141.29,141.94,142.59,143.24],
+    46:[143.99,144.54,145.19,145.83,146.48,147.13,147.78,148.43,149.07,149.72,150.37,151.02],
+    47:[151.67,152.32,152.97,153.61,154.26,154.91,155.56,156.21,156.85,157.50,158.15,158.80],
+    48:[159.44,160.09,160.74,161.38,162.03,163.68,163.33,163.98,164.62,165.27,165.92,166.57],
+    49:[167.22,167.87,168.52,169.16,169.81,170.46,171.11,171.76,172.40,173.05,173.70,174.35],
+    band50to57:[175.00,172.57,170.14,167.71,165.28,162.85,160.42,157.99,155.56,153.12,150.69,148.26],
+    58:[145.83,143.40,140.97,138.54,136.11,133.68,131.25,128.82,126.39,123.96,121.53,119.10],
+    59:[116.67,114.24,111.81,109.37,106.94,104.51,102.08,99.65,97.22,94.79,92.36,89.93],
+    60:[87.50,85.07,82.64,80.21,77.78,75.35,72.92,70.49,68.06,65.62,63.19,60.76],
+    61:[58.33,55.90,53.47,51.04,50.00,50.00,50.00,50.00,50.00,50.00,50.00,50.00]
+  };
+  const FLUON = {
+    upto35:[25.00,25.65,26.30,26.95,27.60,28.25,28.90,29.55,30.20,30.85,31.50,32.15],
+    36:[32.80,33.45,34.10,34.75,35.40,36.05,36.70,37.35,38.00,38.65,39.30,39.95],
+    37:[40.60,41.25,41.90,42.55,43.20,43.85,44.50,45.15,45.80,46.45,47.10,47.75],
+    38:[48.40,49.05,49.70,50.35,51.00,51.65,52.30,52.95,53.60,54.25,54.90,55.55],
+    39:[56.20,56.85,57.50,58.15,58.80,59.45,60.10,60.75,61.40,62.05,62.70,63.35],
+    40:[64.00,64.65,65.30,65.95,66.60,67.25,67.90,68.55,69.20,69.85,70.50,71.15],
+    41:[71.80,72.45,73.10,73.75,74.40,75.05,75.70,76.35,77.00,77.65,78.30,78.95],
+    42:[79.60,80.25,80.90,81.55,82.20,82.85,83.50,84.15,84.80,85.45,86.10,86.75],
+    43:[87.40,88.05,88.70,89.35,90.00,90.65,91.30,91.95,92.60,93.25,93.90,94.55],
+    44:[95.20,95.85,96.50,97.15,97.80,98.45,99.10,99.75,100.40,101.05,101.70,102.35],
+    45:[103.00,103.65,104.30,104.95,105.60,106.25,106.90,107.55,108.20,108.85,109.50,110.15],
+    46:[110.80,111.45,112.10,112.75,113.40,114.05,114.70,115.35,116.00,116.65,117.30,117.95],
+    47:[118.60,119.25,119.90,120.55,121.20,121.85,122.50,123.15,123.80,124.45,125.10,125.75],
+    48:[126.40,127.05,127.70,128.35,129.00,129.65,130.30,130.95,131.60,132.25,132.90,133.55],
+    49:[134.20,134.85,135.50,136.15,136.80,137.45,138.10,138.75,139.40,140.05,140.70,141.35],
+    60:[142.00,139.37,136.74,134.11,131.48,128.85,126.22,123.59,120.96,118.33,115.70,113.07],
+    61:[110.44,107.81,105.18,102.55,99.92,97.29,94.66,92.03,89.40,86.77,84.14,81.51],
+    62:[78.88,76.25,73.62,70.99,68.36,65.73,63.10,60.47,57.84,55.21,52.58,49.95],
+    63:[47.32,44.69,42.06,39.43,36.80,34.17,31.54,28.91,26.28,25.00,25.00,25.00]
+  };
+  const WEEKLY_CAP = 751.00, TAXFREE_LIMIT = 30000;
+
+  // 2026/27 tax
+  const PA_BASE = 12570, BASIC_LIMIT = 50270, ADDL_LIMIT = 125140;
+  // NI monthly thresholds
+  const NI_PT_M = 12570/12, NI_UEL_M = 50270/12;
+  // Student loan 2026/27
+  const SL = {
+    plan1:{t:26900,r:0.09}, plan2:{t:29385,r:0.09}, plan4:{t:33795,r:0.09},
+    plan5:{t:25000,r:0.09}, postgrad:{t:21000,r:0.06}
+  };
+
+  function scheduleIIIPct(y,m){ m=Math.min(11,Math.max(0,m|0));
+    if(y<=35)return SCHEDULE_III.upto35[m]; if(y>=36&&y<=49)return SCHEDULE_III[y][m];
+    if(y>=50&&y<=57)return SCHEDULE_III.band50to57[m]; if(y>=58&&y<=61)return SCHEDULE_III[y][m];
+    if(y>61)return 50.00; return SCHEDULE_III.upto35[m]; }
+  function fluonPct(y,m){ m=Math.min(11,Math.max(0,m|0));
+    if(y<=35)return FLUON.upto35[m]; if(y>=36&&y<=49)return FLUON[y][m];
+    if(y>=50&&y<=59)return 142.00; if(y>=60&&y<=63)return FLUON[y][m];
+    if(y>=64)return 25.00; return FLUON.upto35[m]; }
+  function ageMult(a){ if(a<22)return 0.5; if(a<=40)return 1.0; return 1.5; }
+
+  function diffYM(d1,d2){ let y=d2.getFullYear()-d1.getFullYear(), mo=d2.getMonth()-d1.getMonth(), da=d2.getDate()-d1.getDate();
+    if(da<0)mo-=1; if(mo<0){y-=1;mo+=12;} if(y<0){y=0;mo=0;} return {years:y,months:mo,totalMonths:y*12+mo}; }
+  function addYears(d,n){ const nd=new Date(d.getTime()); nd.setFullYear(nd.getFullYear()+n); return nd; }
+
+  function statutoryRP(dob,start,leave,weeklyCapped){
+    const s=diffYM(start,leave), full=s.years, skip=Math.max(0,full-20);
+    let mult=0; for(let k=skip+1;k<=full;k++){ const a=diffYM(dob,addYears(start,k)).years; mult+=ageMult(a); }
+    return weeklyCapped*mult;
+  }
+
+  function personalAllowance(inc){ let pa=PA_BASE; if(inc>100000) pa=Math.max(0, PA_BASE-(inc-100000)/2); return pa; }
+  function incomeTaxAnnual(t){ if(t<=0)return 0; const pa=personalAllowance(t); if(t<=pa)return 0;
+    let tax=0; tax+=Math.max(0,Math.min(t,BASIC_LIMIT)-pa)*0.20;
+    if(t>BASIC_LIMIT) tax+=Math.max(0,Math.min(t,ADDL_LIMIT)-BASIC_LIMIT)*0.40;
+    if(t>ADDL_LIMIT) tax+=(t-ADDL_LIMIT)*0.45; return tax; }
+  function niMonthly(g){ if(g<=NI_PT_M)return 0; let ni=(Math.min(g,NI_UEL_M)-NI_PT_M)*0.08; if(g>NI_UEL_M) ni+=(g-NI_UEL_M)*0.02; return ni; }
+  function slMonthly(g,plan){ if(!plan||plan==='none')return 0; const p=SL[plan]; const th=p.t/12; const ex=g-th; if(ex<=0)return 0; return Math.floor(ex*p.r); }
+
+  function fmt(n){ if(!isFinite(n))return '—'; return '£'+n.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function fmtN(n){ return n.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  function parseDate(id){ const v=document.getElementById(id).value; if(!v)return null; const [y,m,d]=v.split('-').map(Number); return new Date(y,m-1,d); }
+  function noticeMonths(){ const s=document.getElementById('notice').value; if(s==='custom'){ const c=parseFloat(document.getElementById('customNoticeMonths').value); return isFinite(c)?c:0; } return parseFloat(s); }
+  function num(id){ return parseFloat(document.getElementById(id).value)||0; }
+  function setT(id,t){ document.getElementById(id).textContent=t; }
+  function show(id,s){ document.getElementById(id).style.display=s?'':'none'; }
+
+  function taxYearFraction(leave){
+    // tax year starts 6 April
+    let start = new Date(leave.getFullYear(), 3, 6); // month 3 = April
+    if (leave < start) start = new Date(leave.getFullYear()-1, 3, 6);
+    const days = (leave - start)/(1000*60*60*24);
+    return Math.max(0, Math.min(1, days/365));
+  }
+
+  function recalc(){
+    const dob=parseDate('dob'), start=parseDate('startDate'), leave=parseDate('leavingDate');
+    const salary=num('salary'), wcp=num('wcp'), sda=num('sda'), nm=noticeMonths();
+    const pensionPct=Math.max(0,Math.min(100,num('pensionPct')))/100;
+    const pensionType=document.getElementById('pensionType').value;
+    const slPlan=document.getElementById('studentLoan').value;
+    const banner=document.getElementById('banner');
+
+    if(!dob||!start||!leave||salary<=0){
+      banner.style.display='none'; show('monthlyCard',false);
+      ['basicsBlock','under2Block','schemeBlock','componentsBlock','stub','taxBlock','netPackageBar','crosscheck'].forEach(x=>show(x,false));
+      setT('statementSub','Fill in your details to see your estimate'); return;
+    }
+    if(leave<=start||start<=dob){
+      banner.style.display='flex'; banner.textContent='Please check your dates — leaving date must be after your start date, and your start date after your date of birth.'; return;
+    }
+    banner.style.display='none';
+
+    const qp=salary+wcp+sda;
+    const age=diffYM(dob,leave), service=diffYM(start,leave);
+    const weeklyCapped=Math.min(qp/52, WEEKLY_CAP);
+    const srp=statutoryRP(dob,start,leave,weeklyCapped);
+    const pilon=qp*(nm/12);
+    const additional=qp*4/52;
+
+    // ---------- MONTHLY TAKE-HOME ----------
+    const grossM=qp/12;
+    const pensionM=grossM*pensionPct;
+    const taxableAnnual = qp*(1-pensionPct);                 // both salsac & netpay reduce taxable
+    const niableM = (pensionType==='salsac') ? grossM*(1-pensionPct) : grossM;   // only salsac reduces NI
+    const slBaseM = (pensionType==='salsac') ? grossM*(1-pensionPct) : grossM;   // salsac reduces SL base
+    const itM = incomeTaxAnnual(taxableAnnual)/12;
+    const niM = niMonthly(niableM);
+    const slM = slMonthly(slBaseM, slPlan);
+    const netM = grossM - pensionM - itM - niM - slM;
+
+    show('monthlyCard',true);
+    setT('m-gross',fmt(grossM));
+    show('m-pension-row', pensionPct>0);
+    setT('m-pension', pensionPct>0 ? '– '+fmt(pensionM) : '—');
+    setT('m-tax','– '+fmt(itM));
+    setT('m-ni','– '+fmt(niM));
+    show('m-sl-row', slPlan!=='none');
+    setT('m-sl', slPlan!=='none' ? '– '+fmt(slM) : '—');
+    setT('m-net',fmt(netM));
+    setT('m-net-annual',fmt(netM*12));
+
+    // ---------- REDUNDANCY ----------
+    setT('statementSub','Estimate as at '+leave.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));
+    show('basicsBlock',true);
+    setT('v-qp',fmt(qp)); setT('v-age',age.years+' years, '+age.months+' months');
+    setT('v-service',service.years+' years, '+service.months+' months');
+
+    // tax-year baseline
+    const frac=taxYearFraction(leave);
+    const monthsWorked=Math.round(frac*12);
+    setT('a-months', monthsWorked+' months');
+    const salaryTaxableYTD = taxableAnnual*frac;   // taxable regular pay already earned this tax year
+
+    let noticeElement, redundancyElement, totalGross, isUnder2=false;
+
+    if(service.totalMonths<24){
+      isUnder2=true;
+      setT('v-schemeFamily','Under 2 years — notice pay + Additional Payment only');
+      show('under2Block',true); show('schemeBlock',false); show('componentsBlock',false);
+      totalGross=pilon+additional;
+      setT('v-u2-pilon',fmt(pilon)); setT('v-u2-add',fmt(additional)); setT('v-u2-total',fmt(totalGross));
+      noticeElement=pilon; redundancyElement=0;
+    } else {
+      show('under2Block',false); show('schemeBlock',true); show('componentsBlock',true);
+      const pre2005 = start <= new Date(2004,11,31);
+      let pct, label;
+      if(pre2005){
+        const pctICI = scheduleIIIPct(age.years,age.months)*(Math.min(service.totalMonths,120)/120);
+        const pctFluon = fluonPct(age.years,age.months);
+        if(pctICI>=pctFluon){ pct=pctICI; label='ICI Scheme (pre-2005), Schedule III'+(service.totalMonths<120?'/IV':''); }
+        else { pct=pctFluon; label='Fluon 2005 terms (elected as more favourable)'; }
+        setT('v-schemeFamily','Employed before 1 Jan 2005 — best of ICI or Fluon terms');
+      } else {
+        pct=fluonPct(age.years,age.months); label='Fluon 2005 Scheme, Appendix 4';
+        setT('v-schemeFamily','Employed from 1 Jan 2005 — Fluon Scheme applies');
+      }
+      const collective=qp*pct/100;
+      const alternative=2*srp+pilon;
+      const collectiveWins=collective>=alternative;
+      const finalScheme=collectiveWins?collective:alternative;
+      totalGross=finalScheme+additional;
+
+      setT('sub-collective', label+' — '+pct.toFixed(2)+'% of qualifying pay (includes SRP and PILON)');
+      setT('v-collective',fmt(collective)); setT('v-alternative',fmt(alternative)); setT('v-winner',fmt(finalScheme));
+      document.getElementById('row-winner').querySelector('.lbl').textContent='Payable amount — '+(collectiveWins?'Collectively Agreed Scheme wins':'Alternative Scheme wins');
+      setT('v-srp',fmt(srp)); setT('v-pilon',fmt(pilon)); setT('v-additional',fmt(additional));
+
+      noticeElement=pilon;
+      redundancyElement = collectiveWins ? Math.max(0,finalScheme-pilon) : 2*srp;
+    }
+
+    show('stub',true);
+    setT('v-total',fmtN(totalGross));
+    document.getElementById('stub-caption').textContent='Before tax and National Insurance — Additional Payment is conditional';
+
+    // ---- tax on package ----
+    const taxFree=Math.min(redundancyElement,TAXFREE_LIMIT);
+    const redExcess=Math.max(0,redundancyElement-TAXFREE_LIMIT);
+    const niableLump=noticeElement+additional;                 // PILON + Additional: employee NI applies
+    const itLumpBase=noticeElement+additional+redExcess;       // income-taxable
+    const incomeTaxLump=incomeTaxAnnual(salaryTaxableYTD+itLumpBase)-incomeTaxAnnual(salaryTaxableYTD);
+    const niLump=niMonthly(niableM+niableLump)-niMonthly(niableM);  // single-month lump on top of one normal month
+    const slLump=slMonthly(slBaseM+niableLump,slPlan)-slMonthly(slBaseM,slPlan);
+    const netPackage=totalGross-incomeTaxLump-niLump-slLump;
+
+    show('taxBlock',true); show('netPackageBar',true);
+    setT('v-taxfree',fmt(taxFree));
+    setT('v-taxable',fmt(itLumpBase));
+    setT('v-tax-it','– '+fmt(incomeTaxLump));
+    setT('v-tax-ni','– '+fmt(niLump));
+    show('v-tax-sl-row', slPlan!=='none');
+    setT('v-tax-sl', slPlan!=='none' ? '– '+fmt(slLump) : '—');
+    setT('v-net-package',fmt(netPackage));
+
+    // ---- cross-check on PILON ----
+    show('crosscheck',true);
+    const ccResult=netM*nm;
+    // modelled net PILON: apply the lump tax/NI proportionally to the PILON share of taxable lump
+    const modelledNetPilon = itLumpBase>0
+      ? pilon - (incomeTaxLump+niLump+slLump)*(pilon/itLumpBase)
+      : pilon;
+    setT('cc-months', (Number.isInteger(nm)?nm:nm.toFixed(1)));
+    setT('cc-monthly', fmt(netM));
+    setT('cc-result', fmt(ccResult));
+    setT('cc-modelled', fmt(modelledNetPilon));
+    const diff=modelledNetPilon-ccResult;
+    let note;
+    if(Math.abs(diff)<pilon*0.03) note=' The two are close, so the quick check works well for you.';
+    else if(diff>0) note=' The modelled figure is a bit higher, mainly because a one-off lump gets most of its NI at 2%.';
+    else note=' The modelled figure is a bit lower, mainly because part of the lump is taxed at 40%.';
+    setT('cc-note', note);
+  }
+
+  document.getElementById('notice').addEventListener('change',function(){
+    document.getElementById('customNoticeWrap').classList.toggle('show',this.value==='custom'); recalc();
+  });
+  ['dob','startDate','leavingDate','salary','wcp','sda','customNoticeMonths','pensionPct'].forEach(id=>document.getElementById(id).addEventListener('input',recalc));
+  ['pensionType','studentLoan'].forEach(id=>document.getElementById(id).addEventListener('change',recalc));
+  recalc();
+})();
+</script>
+</body>
+</html>
