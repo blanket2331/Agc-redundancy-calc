@@ -42,6 +42,7 @@
   .results{display:flex; flex-direction:column; gap:18px;}
   .banner{padding:12px 16px; border-radius:3px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px;}
   .banner.warn{background:var(--rust-bg); color:var(--rust); border:1px solid #f0d7d2;}
+  .banner.updated{background:#E8F4E8; color:#2d5c35; border:1px solid #c5e5c8;}
 
   .card{background:var(--paper-raised); border:1px solid var(--line); border-radius:3px; overflow:hidden;}
   .card-head{padding:18px 24px 14px; border-bottom:1px dashed var(--line);}
@@ -58,6 +59,7 @@
   .line.sum .val, .line.sum .lbl{font-weight:700;}
   .line.faint{color:var(--text-soft);} .line.faint .val{color:var(--text-soft);}
   .line.deduct .val{color:var(--rust);}
+  .line.highlight{background:#fffaf0; padding:0 -24px;}
   .line.winner{background:var(--green-bg); margin:0 -24px; padding:8px 24px; border-radius:2px;}
   .line.winner .val, .line.winner .lbl{color:var(--green); font-weight:700;}
 
@@ -74,14 +76,6 @@
 
   .tax-block{padding:18px 24px 4px; border-top:1px solid var(--line); background:#FBFAF7;}
   .tax-block.hidden{display:none;}
-  .crosscheck{margin:14px 24px 20px; padding:12px 14px; background:var(--teal-bg); border:1px solid #cfe4e4; border-radius:3px; font-size:12.5px; color:#2a5c60;}
-  .crosscheck strong{color:#1d4448;}
-  .crosscheck .big{font-family:var(--mono); font-weight:700;}
-
-  .assumptions{background:var(--paper-raised); border:1px solid var(--line); border-radius:3px; padding:18px 24px; font-size:12.5px; color:var(--text-soft);}
-  .assumptions h3{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-soft); margin:0 0 10px 0;}
-  .assumptions ul{margin:0; padding-left:18px;}
-  .assumptions li{margin-bottom:6px;} .assumptions strong{color:var(--text);}
   .footer-note{max-width:1180px; margin:24px auto 0; padding:0 32px; font-size:11.5px; color:#9AA0A6;}
   @media (max-width:900px){ .footer-note{padding:0 16px;} }
   @media (max-width:520px){
@@ -97,7 +91,7 @@
   <div class="masthead-inner">
     <div class="eyebrow">AGC Chemicals Europe · Hillhouse Site</div>
     <h1>Redundancy Payment Estimator</h1>
-    <p>Work out your monthly take-home pay and an illustrative redundancy package — the Collectively Agreed Scheme, the proposed Alternative Scheme, and the Additional Payment — based on the Collective Agreement (revised August 2021) and the redundancy briefing.</p>
+    <p>Work out your monthly take-home pay and an illustrative redundancy package — based on the Collective Agreement (revised August 2021), the original redundancy briefing, and the updated communication of 14 September 2026 with improved terms (8 weeks' payment + 50% minimum guarantee).</p>
   </div>
 </div>
 
@@ -183,7 +177,7 @@
   <!-- ============ RESULTS ============ -->
   <div class="results">
 
-    <div id="banner" class="banner warn" style="display:none;"></div>
+    <div id="banner" class="banner updated" style="display:none;">Updated 14 September 2026: Additional Payment increased to 8 weeks' pay, plus 50% qualifying-pay minimum guarantee.</div>
 
     <!-- MONTHLY TAKE-HOME -->
     <div class="card" id="monthlyCard" style="display:none;">
@@ -225,7 +219,8 @@
       <div class="line-block" id="under2Block" style="display:none;">
         <h3>Under 2 years' service</h3>
         <div class="line"><span class="lbl">Payment in lieu of notice (PILON)</span><span class="leader"></span><span class="val" id="v-u2-pilon">—</span></div>
-        <div class="line"><span class="lbl">Additional Payment (4 weeks, conditional)</span><span class="leader"></span><span class="val" id="v-u2-add">—</span></div>
+        <div class="line"><span class="lbl">Enhanced Payment (8 weeks, conditional)</span><span class="leader"></span><span class="val" id="v-u2-add">—</span></div>
+        <div class="line"><span class="lbl">50% minimum guarantee</span><span class="leader"></span><span class="val" id="v-u2-min">—</span></div>
         <div class="line sum"><span class="lbl">Total (gross)</span><span class="leader"></span><span class="val" id="v-u2-total">—</span></div>
       </div>
 
@@ -239,8 +234,14 @@
           <span class="lbl">Alternative Scheme<span class="sub">2 × statutory redundancy pay + PILON</span></span>
           <span class="leader"></span><span class="val" id="v-alternative">—</span>
         </div>
+        <div class="line" id="row-pre-enhancement">
+          <span class="lbl">Pre-enhancement total (higher of above)</span>
+          <span class="leader"></span><span class="val" id="v-pre-enhance">—</span>
+        </div>
+        <div class="line highlight"><span class="lbl">Enhanced Payment (8 weeks, conditional)</span><span class="leader"></span><span class="val" id="v-enhanced">—</span></div>
+        <div class="line"><span class="lbl">50% minimum guarantee (6 months' pay)</span><span class="leader"></span><span class="val" id="v-minimum">—</span></div>
         <div class="line winner" id="row-winner">
-          <span class="lbl">Payable amount (higher of the two)</span>
+          <span class="lbl">Payable amount (pre-enhancement + 8 weeks or 50% min, whichever is higher)</span>
           <span class="leader"></span><span class="val" id="v-winner">—</span>
         </div>
       </div>
@@ -249,19 +250,18 @@
         <h3>Component reference</h3>
         <div class="line faint"><span class="lbl">Statutory redundancy pay (2026/27 cap £751/wk)</span><span class="leader"></span><span class="val" id="v-srp">—</span></div>
         <div class="line faint"><span class="lbl">Payment in lieu of notice (PILON)</span><span class="leader"></span><span class="val" id="v-pilon">—</span></div>
-        <div class="line"><span class="lbl">Additional Payment (4 weeks' qualifying pay, conditional)</span><span class="leader"></span><span class="val" id="v-additional">—</span></div>
       </div>
 
       <div class="stub" id="stub" style="display:none;">
         <div class="eyebrow">Estimated total redundancy payment</div>
         <div class="total"><small>£</small><span id="v-total">0</span></div>
-        <div class="caption" id="stub-caption">Before tax and National Insurance</div>
+        <div class="caption" id="stub-caption">Before tax and National Insurance — Enhancement and minimum guarantee conditional on settlement agreement</div>
       </div>
 
       <div class="tax-block" id="taxBlock" style="display:none;">
         <h3 style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-soft); margin:0 0 12px 0;">Estimated tax on the package (2026/27)</h3>
         <div class="line faint"><span class="lbl">Tax-free redundancy element (up to £30,000)</span><span class="leader"></span><span class="val" id="v-taxfree">—</span></div>
-        <div class="line faint"><span class="lbl">Taxable as earnings (PILON + Additional + any excess)</span><span class="leader"></span><span class="val" id="v-taxable">—</span></div>
+        <div class="line faint"><span class="lbl">Taxable as earnings (PILON + Enhanced Payment + any excess)</span><span class="leader"></span><span class="val" id="v-taxable">—</span></div>
         <div class="divider" style="margin:10px 0;"></div>
         <div class="line deduct"><span class="lbl">Estimated Income Tax</span><span class="leader"></span><span class="val" id="v-tax-it">—</span></div>
         <div class="line deduct"><span class="lbl">Estimated employee National Insurance</span><span class="leader"></span><span class="val" id="v-tax-ni">—</span></div>
@@ -271,36 +271,15 @@
         <span class="lbl">Estimated net redundancy payment</span>
         <span class="amt" id="v-net-package">—</span>
       </div>
-
-      <div class="crosscheck" id="crosscheck" style="display:none;">
-        <strong>Your colleague's check:</strong> PILON is taxed like salary, so a quick sanity check is
-        <span id="cc-months"></span> months × your monthly take-home (<span class="big" id="cc-monthly"></span>)
-        = <span class="big" id="cc-result"></span>.
-        The modelled net PILON here is <span class="big" id="cc-modelled"></span>.
-        <span id="cc-note"></span>
-      </div>
-    </div>
-
-    <div class="assumptions">
-      <h3>Assumptions &amp; things to check</h3>
-      <ul>
-        <li>Scheme percentages come directly from <strong>Schedule III / Schedule IV</strong> of the ICI scheme and the <strong>Fluon 2005 Appendix 4</strong> table, exactly as printed in the signed Collective Agreement (revised August 2021).</li>
-        <li>Pre-2005 starters are shown the better of the ICI and Fluon terms, reflecting the company's proposal. Statutory redundancy pay uses the <strong>2026/27 £751</strong> weekly cap and the 0.5 / 1.0 / 1.5 age bands, capped at 20 years.</li>
-        <li><strong>Tax treatment:</strong> the genuine redundancy element is tax-free up to <strong>£30,000</strong>; anything above that is taxed but has no employee NI. PILON and the Additional Payment are taxed as normal earnings (Income Tax + NI + student loan). This matches the briefing.</li>
-        <li><strong>Why PILON ≈ monthly take-home × notice months:</strong> because PILON is taxed like salary. It isn't exact — a lump paid in one month gets most of its NI at 2% (which raises take-home), while if the lump tips you into the 40% band some is taxed more (which lowers it). Payroll may also apply emergency tax on the lump and refund it later.</li>
-        <li>The package tax estimate assumes you've earned roughly <strong id="a-months">—</strong> of salary in the 2026/27 tax year before leaving (from your leaving date), so the personal allowance and 20% band are partly used up already.</li>
-        <li>Take-home figures assume this is your only income, a standard tax code, and rest-of-UK rates (not Scottish). They ignore payroll timing and benefits in kind. Confirm exact figures with payroll or HR, and see <strong>gov.uk/calculate-your-redundancy-pay</strong>.</li>
-        <li>The <strong>Additional Payment</strong> is conditional on satisfactory performance, no material absence, and signing a settlement agreement — not guaranteed. This tool is illustrative and does not override the Collective Agreement or any settlement agreement.</li>
-      </ul>
     </div>
   </div>
 </div>
 
-<div class="footer-note">Built from: Redundancy payments briefing (20/08/26), Appendix 3 Schedule III, Fluon 2005 Appendix 4, and the signed Collective Agreement (revised August 2021). 2026/27 tax, NI and student-loan thresholds. Personal, illustrative use only.</div>
+<div class="footer-note">Built from: Redundancy payments briefing (20/08/26), 14 September 2026 communication (improved terms), Appendix 3 Schedule III, Fluon 2005 Appendix 4, and the signed Collective Agreement (revised August 2021). 2026/27 tax, NI and student-loan thresholds. Personal, illustrative use only.</div>
 
 <script>
 (function(){
-  // ---------------- Scheme data tables (validated against briefing worked examples) ----------------
+  // Scheme data (pre-2005 ICI and post-2005 Fluon, validated against briefing)
   const SCHEDULE_III = {
     upto35:[58.33,58.98,59.63,60.27,60.92,61.57,62.22,62.87,63.51,64.16,64.81,65.46],
     36:[66.11,66.76,67.41,68.05,68.70,69.35,70.00,70.65,71.29,71.94,72.59,73.24],
@@ -345,12 +324,8 @@
     63:[47.32,44.69,42.06,39.43,36.80,34.17,31.54,28.91,26.28,25.00,25.00,25.00]
   };
   const WEEKLY_CAP = 751.00, TAXFREE_LIMIT = 30000;
-
-  // 2026/27 tax
   const PA_BASE = 12570, BASIC_LIMIT = 50270, ADDL_LIMIT = 125140;
-  // NI monthly thresholds
   const NI_PT_M = 12570/12, NI_UEL_M = 50270/12;
-  // Student loan 2026/27
   const SL = {
     plan1:{t:26900,r:0.09}, plan2:{t:29385,r:0.09}, plan4:{t:33795,r:0.09},
     plan5:{t:25000,r:0.09}, postgrad:{t:21000,r:0.06}
@@ -394,8 +369,7 @@
   function show(id,s){ document.getElementById(id).style.display=s?'':'none'; }
 
   function taxYearFraction(leave){
-    // tax year starts 6 April
-    let start = new Date(leave.getFullYear(), 3, 6); // month 3 = April
+    let start = new Date(leave.getFullYear(), 3, 6);
     if (leave < start) start = new Date(leave.getFullYear()-1, 3, 6);
     const days = (leave - start)/(1000*60*60*24);
     return Math.max(0, Math.min(1, days/365));
@@ -411,27 +385,28 @@
 
     if(!dob||!start||!leave||salary<=0){
       banner.style.display='none'; show('monthlyCard',false);
-      ['basicsBlock','under2Block','schemeBlock','componentsBlock','stub','taxBlock','netPackageBar','crosscheck'].forEach(x=>show(x,false));
+      ['basicsBlock','under2Block','schemeBlock','componentsBlock','stub','taxBlock','netPackageBar'].forEach(x=>show(x,false));
       setT('statementSub','Fill in your details to see your estimate'); return;
     }
     if(leave<=start||start<=dob){
       banner.style.display='flex'; banner.textContent='Please check your dates — leaving date must be after your start date, and your start date after your date of birth.'; return;
     }
-    banner.style.display='none';
+    banner.style.display='flex';
 
     const qp=salary+wcp+sda;
     const age=diffYM(dob,leave), service=diffYM(start,leave);
     const weeklyCapped=Math.min(qp/52, WEEKLY_CAP);
     const srp=statutoryRP(dob,start,leave,weeklyCapped);
     const pilon=qp*(nm/12);
-    const additional=qp*4/52;
+    const enhanced = qp*8/52;                  // 8 weeks' enhanced payment (new Sep 2026)
+    const sixMonths = qp*0.5;                   // 50% minimum guarantee
 
     // ---------- MONTHLY TAKE-HOME ----------
     const grossM=qp/12;
     const pensionM=grossM*pensionPct;
-    const taxableAnnual = qp*(1-pensionPct);                 // both salsac & netpay reduce taxable
-    const niableM = (pensionType==='salsac') ? grossM*(1-pensionPct) : grossM;   // only salsac reduces NI
-    const slBaseM = (pensionType==='salsac') ? grossM*(1-pensionPct) : grossM;   // salsac reduces SL base
+    const taxableAnnual = qp*(1-pensionPct);
+    const niableM = (pensionType==='salsac') ? grossM*(1-pensionPct) : grossM;
+    const slBaseM = (pensionType==='salsac') ? grossM*(1-pensionPct) : grossM;
     const itM = incomeTaxAnnual(taxableAnnual)/12;
     const niM = niMonthly(niableM);
     const slM = slMonthly(slBaseM, slPlan);
@@ -454,21 +429,28 @@
     setT('v-qp',fmt(qp)); setT('v-age',age.years+' years, '+age.months+' months');
     setT('v-service',service.years+' years, '+service.months+' months');
 
-    // tax-year baseline
     const frac=taxYearFraction(leave);
-    const monthsWorked=Math.round(frac*12);
-    setT('a-months', monthsWorked+' months');
-    const salaryTaxableYTD = taxableAnnual*frac;   // taxable regular pay already earned this tax year
+    const salaryTaxableYTD = taxableAnnual*frac;
 
-    let noticeElement, redundancyElement, totalGross, isUnder2=false;
+    let noticeElement, redundancyElement, enhancedTaxedAsEarnings, totalGross, isUnder2=false;
 
     if(service.totalMonths<24){
       isUnder2=true;
-      setT('v-schemeFamily','Under 2 years — notice pay + Additional Payment only');
+      setT('v-schemeFamily','Under 2 years — notice pay + Enhanced Payment + 50% minimum guarantee');
       show('under2Block',true); show('schemeBlock',false); show('componentsBlock',false);
-      totalGross=pilon+additional;
-      setT('v-u2-pilon',fmt(pilon)); setT('v-u2-add',fmt(additional)); setT('v-u2-total',fmt(totalGross));
-      noticeElement=pilon; redundancyElement=0;
+      const withEnhance = pilon + enhanced;
+      const withMin = sixMonths;
+      totalGross = Math.max(withEnhance, withMin);
+      setT('v-u2-pilon',fmt(pilon)); setT('v-u2-add',fmt(enhanced)); setT('v-u2-min',fmt(withMin));
+      setT('v-u2-total',fmt(totalGross));
+      noticeElement=pilon;
+      if (withMin > withEnhance) {
+        redundancyElement = Math.max(0, totalGross - pilon);
+        enhancedTaxedAsEarnings = 0;
+      } else {
+        redundancyElement = 0;
+        enhancedTaxedAsEarnings = enhanced;
+      }
     } else {
       show('under2Block',false); show('schemeBlock',true); show('componentsBlock',true);
       const pre2005 = start <= new Date(2004,11,31);
@@ -486,29 +468,42 @@
       const collective=qp*pct/100;
       const alternative=2*srp+pilon;
       const collectiveWins=collective>=alternative;
-      const finalScheme=collectiveWins?collective:alternative;
-      totalGross=finalScheme+additional;
+      const preEnhance=collectiveWins?collective:alternative;
+      const withEnhance = preEnhance + enhanced;
+      const withMin = sixMonths;
+      totalGross = Math.max(withEnhance, withMin);
 
       setT('sub-collective', label+' — '+pct.toFixed(2)+'% of qualifying pay (includes SRP and PILON)');
-      setT('v-collective',fmt(collective)); setT('v-alternative',fmt(alternative)); setT('v-winner',fmt(finalScheme));
-      document.getElementById('row-winner').querySelector('.lbl').textContent='Payable amount — '+(collectiveWins?'Collectively Agreed Scheme wins':'Alternative Scheme wins');
-      setT('v-srp',fmt(srp)); setT('v-pilon',fmt(pilon)); setT('v-additional',fmt(additional));
+      setT('v-collective',fmt(collective)); setT('v-alternative',fmt(alternative)); setT('v-pre-enhance',fmt(preEnhance));
+      setT('v-enhanced',fmt(enhanced)); setT('v-minimum',fmt(withMin));
+      setT('v-winner',fmt(totalGross));
+      document.getElementById('row-winner').querySelector('.lbl').textContent='Payable amount (pre-enhancement + 8 weeks or 50% min, whichever is higher)';
+      setT('v-srp',fmt(srp)); setT('v-pilon',fmt(pilon));
 
       noticeElement=pilon;
-      redundancyElement = collectiveWins ? Math.max(0,finalScheme-pilon) : 2*srp;
+      // If the 50% minimum is what's actually binding, the 8-week enhancement is absorbed
+      // into that floor rather than paid as a separate earnings item on top — so everything
+      // above PILON is treated as the redundancy/ex-gratia element (tax-free up to £30,000).
+      // Otherwise, the enhancement is a distinct payment taxed as earnings, as the briefing states.
+      if (withMin > withEnhance) {
+        redundancyElement = Math.max(0, totalGross - pilon);
+        enhancedTaxedAsEarnings = 0;
+      } else {
+        redundancyElement = Math.max(0, preEnhance - pilon);
+        enhancedTaxedAsEarnings = enhanced;
+      }
     }
 
     show('stub',true);
     setT('v-total',fmtN(totalGross));
-    document.getElementById('stub-caption').textContent='Before tax and National Insurance — Additional Payment is conditional';
 
     // ---- tax on package ----
     const taxFree=Math.min(redundancyElement,TAXFREE_LIMIT);
     const redExcess=Math.max(0,redundancyElement-TAXFREE_LIMIT);
-    const niableLump=noticeElement+additional;                 // PILON + Additional: employee NI applies
-    const itLumpBase=noticeElement+additional+redExcess;       // income-taxable
+    const niableLump=noticeElement+enhancedTaxedAsEarnings;
+    const itLumpBase=noticeElement+enhancedTaxedAsEarnings+redExcess;
     const incomeTaxLump=incomeTaxAnnual(salaryTaxableYTD+itLumpBase)-incomeTaxAnnual(salaryTaxableYTD);
-    const niLump=niMonthly(niableM+niableLump)-niMonthly(niableM);  // single-month lump on top of one normal month
+    const niLump=niMonthly(niableM+niableLump)-niMonthly(niableM);
     const slLump=slMonthly(slBaseM+niableLump,slPlan)-slMonthly(slBaseM,slPlan);
     const netPackage=totalGross-incomeTaxLump-niLump-slLump;
 
@@ -520,24 +515,6 @@
     show('v-tax-sl-row', slPlan!=='none');
     setT('v-tax-sl', slPlan!=='none' ? '– '+fmt(slLump) : '—');
     setT('v-net-package',fmt(netPackage));
-
-    // ---- cross-check on PILON ----
-    show('crosscheck',true);
-    const ccResult=netM*nm;
-    // modelled net PILON: apply the lump tax/NI proportionally to the PILON share of taxable lump
-    const modelledNetPilon = itLumpBase>0
-      ? pilon - (incomeTaxLump+niLump+slLump)*(pilon/itLumpBase)
-      : pilon;
-    setT('cc-months', (Number.isInteger(nm)?nm:nm.toFixed(1)));
-    setT('cc-monthly', fmt(netM));
-    setT('cc-result', fmt(ccResult));
-    setT('cc-modelled', fmt(modelledNetPilon));
-    const diff=modelledNetPilon-ccResult;
-    let note;
-    if(Math.abs(diff)<pilon*0.03) note=' The two are close, so the quick check works well for you.';
-    else if(diff>0) note=' The modelled figure is a bit higher, mainly because a one-off lump gets most of its NI at 2%.';
-    else note=' The modelled figure is a bit lower, mainly because part of the lump is taxed at 40%.';
-    setT('cc-note', note);
   }
 
   document.getElementById('notice').addEventListener('change',function(){
